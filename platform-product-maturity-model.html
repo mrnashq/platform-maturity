@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Product Maturity Model</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --level1: #da3633;
+    --level1-bg: rgba(218, 54, 51, 0.12);
+    --level2: #d29922;
+    --level2-bg: rgba(210, 153, 34, 0.12);
+    --level3: #3fb950;
+    --level3-bg: rgba(63, 185, 80, 0.12);
+    --level4: #58a6ff;
+    --level4-bg: rgba(88, 166, 255, 0.12);
+    --level5: #bc8cff;
+    --level5-bg: rgba(188, 140, 255, 0.12);
+    --sticky-width: 160px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    padding: 2rem;
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .header {
+    max-width: 1400px;
+    margin: 0 auto 2rem;
+  }
+
+  .header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  .header p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 720px;
+    margin-bottom: 1.25rem;
+  }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .pillar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+  }
+
+  .pillar strong {
+    display: block;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .pillar span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .matrix-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+
+  .matrix {
+    display: grid;
+    grid-template-columns: var(--sticky-width) repeat(7, minmax(140px, 1fr));
+    gap: 0;
+    min-width: 900px;
+  }
+
+  /* Sticky first column */
+  .matrix-corner,
+  .matrix-row-header {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bg);
+  }
+
+  .matrix-corner {
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+
+  /* Column headers (capabilities) */
+  .matrix-col-header {
+    padding: 0.75rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+
+  .matrix-col-header:hover { background: var(--surface); }
+  .matrix-col-header:last-child { border-right: none; }
+  .matrix-col-header.active { background: var(--surface); }
+
+  /* Row headers (levels) */
+  .matrix-row-header {
+    padding: 0.6rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+
+  .matrix-row-header:hover { background: var(--surface); }
+  .matrix-row-header.active { background: var(--surface); }
+
+  .row-level-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .row-level-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .row-level-summary {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-top: 0.1rem;
+  }
+
+  .row-1 .row-level-num, .row-1 .row-level-name { color: var(--level1); }
+  .row-2 .row-level-num, .row-2 .row-level-name { color: var(--level2); }
+  .row-3 .row-level-num, .row-3 .row-level-name { color: var(--level3); }
+  .row-4 .row-level-num, .row-4 .row-level-name { color: var(--level4); }
+  .row-5 .row-level-num, .row-5 .row-level-name { color: var(--level5); }
+
+  /* Cells */
+  .matrix-cell {
+    padding: 0.6rem 0.65rem;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    font-size: 0.73rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .matrix-cell:nth-child(8n+9) { border-right: none; }
+
+  .matrix-cell:hover { color: var(--text); }
+
+  .matrix-cell.cl-1 { background: var(--level1-bg); }
+  .matrix-cell.cl-2 { background: var(--level2-bg); }
+  .matrix-cell.cl-3 { background: var(--level3-bg); }
+  .matrix-cell.cl-4 { background: var(--level4-bg); }
+  .matrix-cell.cl-5 { background: var(--level5-bg); }
+
+  .matrix-cell.cl-1:hover, .matrix-cell.cl-1:active { background: rgba(218, 54, 51, 0.18); }
+  .matrix-cell.cl-2:hover, .matrix-cell.cl-2:active { background: rgba(210, 153, 34, 0.18); }
+  .matrix-cell.cl-3:hover, .matrix-cell.cl-3:active { background: rgba(63, 185, 80, 0.18); }
+  .matrix-cell.cl-4:hover, .matrix-cell.cl-4:active { background: rgba(88, 166, 255, 0.18); }
+  .matrix-cell.cl-5:hover, .matrix-cell.cl-5:active { background: rgba(188, 140, 255, 0.18); }
+
+  .matrix-cell .short { display: block; }
+  .matrix-cell .full { display: none; }
+  .matrix-cell.expanded .short { display: none; }
+  .matrix-cell.expanded .full { display: block; color: var(--text); }
+
+  .matrix-cell.expanded.cl-1 { background: rgba(218, 54, 51, 0.2); }
+  .matrix-cell.expanded.cl-2 { background: rgba(210, 153, 34, 0.2); }
+  .matrix-cell.expanded.cl-3 { background: rgba(63, 185, 80, 0.2); }
+  .matrix-cell.expanded.cl-4 { background: rgba(88, 166, 255, 0.2); }
+  .matrix-cell.expanded.cl-5 { background: rgba(188, 140, 255, 0.2); }
+
+  .last-row .matrix-row-header,
+  .last-row .matrix-cell { border-bottom: none; }
+
+  /* Shadow on sticky column when scrolled */
+  .matrix-wrapper.scrolled .matrix-corner,
+  .matrix-wrapper.scrolled .matrix-row-header {
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.3);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 700px) {
+    body { padding: 1rem; }
+
+    .header h1 { font-size: 1.2rem; }
+    .header p { font-size: 0.78rem; }
+
+    .pillars {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .pillar { padding: 0.6rem 0.8rem; }
+    .pillar strong { font-size: 0.72rem; }
+    .pillar span { font-size: 0.75rem; }
+
+    :root { --sticky-width: 100px; }
+
+    .matrix {
+      grid-template-columns: var(--sticky-width) repeat(7, minmax(120px, 1fr));
+      min-width: 760px;
+    }
+
+    .row-level-num { font-size: 0.55rem; }
+    .row-level-name { font-size: 0.68rem; }
+    .row-level-summary { font-size: 0.62rem; }
+
+    .matrix-col-header { font-size: 0.65rem; padding: 0.6rem 0.4rem; }
+    .matrix-cell { font-size: 0.68rem; padding: 0.5rem 0.5rem; }
+    .matrix-row-header { padding: 0.5rem; }
+  }
+
+  @media (max-width: 400px) {
+    body { padding: 0.75rem; }
+    :root { --sticky-width: 80px; }
+
+    .row-level-summary { display: none; }
+    .row-level-name { font-size: 0.62rem; }
+
+    .matrix {
+      grid-template-columns: var(--sticky-width) repeat(7, minmax(110px, 1fr));
+      min-width: 680px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Platform Product Maturity Model</h1>
+  <p>The platform's purpose is to maximise the time developers spend on product work by giving them the context to make decisions about their systems that matter, while abstracting the complexity of getting that information and managing those systems.</p>
+  <div class="pillars">
+    <div class="pillar"><strong>Self-Service</strong><span>Can developers accomplish what they need without waiting for someone else?</span></div>
+    <div class="pillar"><strong>Fleet Management</strong><span>Can the organisation understand, govern, and act on its services as a whole?</span></div>
+    <div class="pillar"><strong>Company-Specific</strong><span>Does the platform encode your organisation's conventions, constraints, and context?</span></div>
+  </div>
+</div>
+
+<div class="matrix-wrapper" id="matrixWrapper">
+  <div class="matrix">
+
+    <!-- Header row -->
+    <div class="matrix-corner"></div>
+    <div class="matrix-col-header" data-col="0">Ideation</div>
+    <div class="matrix-col-header" data-col="1">Architecture</div>
+    <div class="matrix-col-header" data-col="2">Shipping</div>
+    <div class="matrix-col-header" data-col="3">Understanding</div>
+    <div class="matrix-col-header" data-col="4">Running</div>
+    <div class="matrix-col-header" data-col="5">Fixing</div>
+    <div class="matrix-col-header" data-col="6">Lifecycle</div>
+
+    <!-- Level 1 -->
+    <div class="matrix-row-header row-1" data-row="0">
+      <span class="row-level-num">Level 1</span>
+      <span class="row-level-name">Ad Hoc</span>
+      <span class="row-level-summary">Tribal knowledge and tickets</span>
+    </div>
+    <div class="matrix-cell cl-1" data-row="0" data-col="0">
+      <span class="short">Disconnected planning. Ideas translated to work manually.</span>
+      <span class="full">Planning is a separate activity. Ideas are captured in disconnected tools and translated manually into technical work. The output of a planning session — a ticket, a doc, a sketch — has no automated relationship to the systems that will implement it.</span>
+    </div>
+    <div class="matrix-cell cl-1" data-row="0" data-col="1">
+      <span class="short">Bespoke infra and patterns per team. No shared rationale. Unpredictable costs.</span>
+      <span class="full">Each team makes bespoke choices about infrastructure, dependencies, and application patterns with no shared rationale. Distributed system concerns — retries, delivery guarantees, resilience — are solved independently per team, or not at all. Costs are varied and unpredictable.</span>
+    </div>
+    <div class="matrix-cell cl-1" data-row="0" data-col="2">
+      <span class="short">Each team's own process. Varies by service and who set it up.</span>
+      <span class="full">Each team has their own way of getting work to production — whether that's a backend deploy, a frontend build, or a mobile release. The process varies by team and by who set it up. Quality gates are inconsistent or absent.</span>
+    </div>
+    <div class="matrix-cell cl-1" data-row="0" data-col="3">
+      <span class="short">Disconnected tools. No single view of services, health, or cost.</span>
+      <span class="full">Knowing what's happening means checking multiple disconnected tools — if they exist. No single view of services, ownership, health, dependencies, or cost.</span>
+    </div>
+    <div class="matrix-cell cl-1" data-row="0" data-col="4">
+      <span class="short">Each team's problem. No shared approach. Response depends on who notices.</span>
+      <span class="full">Keeping things healthy is each team's problem. There's no shared approach to scaling, resource management, or routine maintenance. When something needs attention, the response depends on who notices first.</span>
+    </div>
+    <div class="matrix-cell cl-1" data-row="0" data-col="5">
+      <span class="short">Finding logs takes longer than the fix. No path from alert to diagnosis.</span>
+      <span class="full">When something breaks, finding the relevant logs and traces takes longer than the fix. There's no consistent path from alert to diagnosis.</span>
+    </div>
+    <div class="matrix-cell cl-1" data-row="0" data-col="6">
+      <span class="short">Ad hoc projects. No fleet view. No way to assess impact.</span>
+      <span class="full">Migrations, upgrades, and decommissions are ad hoc projects. There's no fleet-wide view and no easy way to assess impact.</span>
+    </div>
+
+    <!-- Level 2 -->
+    <div class="matrix-row-header row-2" data-row="1">
+      <span class="row-level-num">Level 2</span>
+      <span class="row-level-name">Standardised</span>
+      <span class="row-level-summary">Shared defaults, direct tooling</span>
+    </div>
+    <div class="matrix-cell cl-2" data-row="1" data-col="0">
+      <span class="short">Planning tools integrated with dev tooling. Work items flow without re-entry.</span>
+      <span class="full">Planning tools are integrated with developer tooling, enabling a smoother transition between product thinking and technical execution. Work items flow from planning into development without manual re-entry.</span>
+    </div>
+    <div class="matrix-cell cl-2" data-row="1" data-col="1">
+      <span class="short">Templates and shared libraries for common patterns. Teams adopt independently.</span>
+      <span class="full">Templates and guidelines exist for common infrastructure designs and application patterns. Common ingress, egress, and backing service patterns are maintained centrally. Shared libraries cover concerns like retries and circuit breakers. Teams adopt these but integrate and maintain them independently. Costs become more predictable where standards are followed.</span>
+    </div>
+    <div class="matrix-cell cl-2" data-row="1" data-col="2">
+      <span class="short">Shared standards for build/test/release. Teams own their config.</span>
+      <span class="full">Shared standards define expected stages for build, test, and release across disciplines. Teams adopt them but own their configuration. Mobile, web, and backend may have separate standards but they exist and are documented.</span>
+    </div>
+    <div class="matrix-cell cl-2" data-row="1" data-col="3">
+      <span class="short">Catalogue and baseline observability exist. Manual upkeep, tends to drift.</span>
+      <span class="full">A catalogue tracks services and ownership. Observability has a baseline — standard metrics, logging, and alerting. But the catalogue relies on teams keeping their information up to date manually, so it has a tendency to fall out of sync with reality.</span>
+    </div>
+    <div class="matrix-cell cl-2" data-row="1" data-col="4">
+      <span class="short">Sensible defaults in place. Tuning, patching, and scaling still on developers.</span>
+      <span class="full">Sensible defaults are in place so the most common operational needs are covered out of the box. Developers inherit good starting points, but acting on issues — tuning, patching, scaling — is still on them.</span>
+    </div>
+    <div class="matrix-cell cl-2" data-row="1" data-col="5">
+      <span class="short">Logs and metrics findable. Connecting the dots still manual.</span>
+      <span class="full">Consistent observability means logs and metrics are findable. The data is there, but connecting the dots during an incident — correlating a deploy with a spike, tracing a failure across services — is still manual.</span>
+    </div>
+    <div class="matrix-cell cl-2" data-row="1" data-col="6">
+      <span class="short">Consistent rollouts possible. Coordinating fleet-wide changes still effortful.</span>
+      <span class="full">Shared foundations mean changes can be rolled out consistently. But coordinating a fleet-wide change is still effortful — the building blocks exist but the workflow doesn't.</span>
+    </div>
+
+    <!-- Level 3 -->
+    <div class="matrix-row-header row-3" data-row="2">
+      <span class="row-level-num">Level 3</span>
+      <span class="row-level-name">Self-Service Paths</span>
+      <span class="row-level-summary">Declare intent, platform handles it</span>
+    </div>
+    <div class="matrix-cell cl-3" data-row="2" data-col="0">
+      <span class="short">Design systems integrated from the start. Company guidelines enforced at ideation.</span>
+      <span class="full">Design systems are integrated with planning and developer tooling. New work uses existing components, patterns, and interfaces from the start — enforcing company guidelines and visual consistency from the point of ideation, not as a review gate later.</span>
+    </div>
+    <div class="matrix-cell cl-3" data-row="2" data-col="1">
+      <span class="short">Declare intent, platform provisions infra and handles complexity. Predictable costs.</span>
+      <span class="full">Infrastructure and application patterns are embedded in self-service offerings. Developers declare intent — "this service needs a document database" or "this service publishes order events" — and the platform provisions the infrastructure and handles the complexity: outbox patterns, dead letter handling, schema compatibility. Designs are standardised with predictable costs.</span>
+    </div>
+    <div class="matrix-cell cl-3" data-row="2" data-col="2">
+      <span class="short">Platform provides and maintains pipelines. Push code, platform handles the rest.</span>
+      <span class="full">Pipelines are provided and maintained by the platform, appropriate to the type of work — backend service, web application, mobile release. Developers push code; the platform handles the rest. Quality, security, and compliance gates are part of the process, not a separate activity.</span>
+    </div>
+    <div class="matrix-cell cl-3" data-row="2" data-col="3">
+      <span class="short">Catalogue accurate by construction. Observability automatic. One place for everything.</span>
+      <span class="full">The catalogue is accurate by construction. Observability is automatic and comprehensive — health, dependencies, cost, and compliance state are visible without configuring anything. Developers see what matters in one place.</span>
+    </div>
+    <div class="matrix-cell cl-3" data-row="2" data-col="4">
+      <span class="short">Routine ops handled by platform. Developers act only on decisions.</span>
+      <span class="full">Routine operational actions are handled by the platform. Certificate rotation, dependency patching, base image updates, scaling within declared parameters — these happen without developer intervention. Developers act when the platform surfaces something that requires a decision.</span>
+    </div>
+    <div class="matrix-cell cl-3" data-row="2" data-col="5">
+      <span class="short">Platform surfaces context in one place. Developers diagnose, not search.</span>
+      <span class="full">The platform surfaces relevant context: recent changes, related services, logs, and known vulnerabilities — all in one place. Developers spend time diagnosing, not searching.</span>
+    </div>
+    <div class="matrix-cell cl-3" data-row="2" data-col="6">
+      <span class="short">Paths for common ops. Fleet-wide and novel changes still bespoke.</span>
+      <span class="full">The platform provides paths for common lifecycle operations — dependency updates, environment promotion, decommissioning. But novel or cross-cutting fleet-wide changes still require bespoke effort.</span>
+    </div>
+
+    <!-- Level 4 -->
+    <div class="matrix-row-header row-4" data-row="3">
+      <span class="row-level-num">Level 4</span>
+      <span class="row-level-name">Integrated Product</span>
+      <span class="row-level-summary">SaaS-like, full lifecycle</span>
+    </div>
+    <div class="matrix-cell cl-4" data-row="3" data-col="0">
+      <span class="short">Natural language to prototypes and work item breakdowns using existing patterns.</span>
+      <span class="full">Non-engineers can describe ideas in natural language and have them translated into high-fidelity prototypes using existing interfaces, design systems, and service patterns. The platform generates a breakdown of work items with appropriate specification and detail, ready for development.</span>
+    </div>
+    <div class="matrix-cell cl-4" data-row="3" data-col="1">
+      <span class="short">Infra and patterns managed as a connected system. Evolved centrally.</span>
+      <span class="full">The platform manages infrastructure and application patterns as a connected system. Service dependencies, event flows, and resource usage are visible and governed holistically. Cost, performance, and compliance are derived from the same service metadata. Architectural decisions can be evolved centrally without touching every consumer.</span>
+    </div>
+    <div class="matrix-cell cl-4" data-row="3" data-col="2">
+      <span class="short">Releases are lifecycle events. Catalogue, policy, audit, observability — automatic.</span>
+      <span class="full">Releases are lifecycle events the platform understands end-to-end. A release updates the catalogue, validates policy, records audit evidence, and feeds into observability — whether it's a backend deploy, a web build, or a mobile submission. The full chain from commit to production is a single coherent flow.</span>
+    </div>
+    <div class="matrix-cell cl-4" data-row="3" data-col="3">
+      <span class="short">Single estate view. Cross-cutting queries answerable and actionable.</span>
+      <span class="full">A single coherent view of the entire estate. Cross-cutting queries ("which services depend on this library, haven't been released in 90 days, and are non-compliant?") are answerable and actionable. The catalogue drives governance, not just discovery.</span>
+    </div>
+    <div class="matrix-cell cl-4" data-row="3" data-col="4">
+      <span class="short">Platform takes corrective action. Drift remediated. Maintenance invisible.</span>
+      <span class="full">The platform takes corrective action based on what it observes. Drift from baselines is remediated, not just flagged. Routine maintenance is invisible. Developers are only pulled in for decisions that require context the platform doesn't have.</span>
+    </div>
+    <div class="matrix-cell cl-4" data-row="3" data-col="5">
+      <span class="short">Platform-assisted. Correlates cause. Auto-remediates known patterns.</span>
+      <span class="full">Incident response is platform-assisted. The platform correlates releases, alerts, and dependencies to surface probable cause. Known failure patterns trigger automated remediation — restarts, rollbacks, failovers — without waiting for a human.</span>
+    </div>
+    <div class="matrix-cell cl-4" data-row="3" data-col="6">
+      <span class="short">Fleet-wide changes are first-class. Impact assessed. Policy via metadata.</span>
+      <span class="full">Fleet-wide changes are first-class operations. The platform assesses impact, stages rollouts, and tracks progress across the estate. Policy changes propagate through metadata, not manual updates to individual services.</span>
+    </div>
+
+    <!-- Level 5 -->
+    <div class="matrix-row-header row-5 last-row" data-row="4">
+      <span class="row-level-num">Level 5</span>
+      <span class="row-level-name">Adaptive</span>
+      <span class="row-level-summary">Proactive, autonomous where safe</span>
+    </div>
+    <div class="matrix-cell cl-5 last-row" data-row="4" data-col="0">
+      <span class="short">Features assessed against the estate for reuse, complexity, and dependencies.</span>
+      <span class="full">The platform connects ideation to implementation end-to-end. A proposed feature can be assessed against existing services, components, and capabilities to surface reuse opportunities, estimate complexity, and identify dependencies before development begins.</span>
+    </div>
+    <div class="matrix-cell cl-5 last-row" data-row="4" data-col="1">
+      <span class="short">Platform recommends and implements changes based on history and risk.</span>
+      <span class="full">The platform recommends and implements architectural changes based on the estate's history — what's worked, what's failed, what's expensive, and what's secure. Cost optimisation and right-sizing are proactive.</span>
+    </div>
+    <div class="matrix-cell cl-5 last-row" data-row="4" data-col="2">
+      <span class="short">Pipelines adapt to context and risk. Strategies informed by historical patterns.</span>
+      <span class="full">Pipelines adapt to context — deeper validation for high-risk changes, fast-tracking low-risk ones, flagging anomalies in build or test behaviour before they reach production. Release strategies are informed by historical patterns across the estate.</span>
+    </div>
+    <div class="matrix-cell cl-5 last-row" data-row="4" data-col="3">
+      <span class="short">Natural-language querying. Anomalies and insights surfaced automatically.</span>
+      <span class="full">Natural-language and conversational interfaces let developers query the estate. The platform detects anomalies and surfaces insights — including cost trends and emerging risks — without being asked.</span>
+    </div>
+    <div class="matrix-cell cl-5 last-row" data-row="4" data-col="4">
+      <span class="short">Pre-emptive action. Predictive scaling, waste reclamation, auto-patching.</span>
+      <span class="full">The platform acts pre-emptively — scaling ahead of predicted demand, reclaiming unused resources, restarting failing components, and applying patches within policy. Human intervention is reserved for decisions that require judgement.</span>
+    </div>
+    <div class="matrix-cell cl-5 last-row" data-row="4" data-col="5">
+      <span class="short">Self-healing. Root cause from history. Repeated incidents prevented.</span>
+      <span class="full">The platform self-heals where it can, correlates incidents across services, and suggests root cause based on historical patterns. Repeated incidents feed back into the platform to prevent recurrence. Novel issues surface with full context for human diagnosis.</span>
+    </div>
+    <div class="matrix-cell cl-5 last-row" data-row="4" data-col="6">
+      <span class="short">Validated against dependency graph. Auto-staged with human gates.</span>
+      <span class="full">Fleet-wide changes are validated against the dependency graph and risk profile before execution. The platform stages, monitors, and rolls back automatically. Human approval gates protect high-risk actions.</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  // Track touch to distinguish tap from scroll
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchMoved = false;
+
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    if (dx > 8 || dy > 8) touchMoved = true;
+  }, { passive: true });
+
+  function handleTap(el, callback) {
+    el.addEventListener('click', function(e) {
+      callback(e);
+    });
+    el.addEventListener('touchend', function(e) {
+      if (!touchMoved) {
+        e.preventDefault();
+        callback(e);
+      }
+    });
+  }
+
+  // Individual cells
+  document.querySelectorAll('.matrix-cell').forEach(function(cell) {
+    handleTap(cell, function() {
+      cell.classList.toggle('expanded');
+    });
+  });
+
+  // Row headers
+  document.querySelectorAll('.matrix-row-header[data-row]').forEach(function(header) {
+    handleTap(header, function() {
+      var rowIndex = header.getAttribute('data-row');
+      var cells = document.querySelectorAll('.matrix-cell[data-row="' + rowIndex + '"]');
+      var allExpanded = Array.from(cells).every(function(c) { return c.classList.contains('expanded'); });
+      cells.forEach(function(c) {
+        if (allExpanded) c.classList.remove('expanded');
+        else c.classList.add('expanded');
+      });
+      header.classList.toggle('active', !allExpanded);
+    });
+  });
+
+  // Column headers
+  document.querySelectorAll('.matrix-col-header[data-col]').forEach(function(header) {
+    handleTap(header, function() {
+      var colIndex = header.getAttribute('data-col');
+      var cells = document.querySelectorAll('.matrix-cell[data-col="' + colIndex + '"]');
+      var allExpanded = Array.from(cells).every(function(c) { return c.classList.contains('expanded'); });
+      cells.forEach(function(c) {
+        if (allExpanded) c.classList.remove('expanded');
+        else c.classList.add('expanded');
+      });
+      header.classList.toggle('active', !allExpanded);
+    });
+  });
+
+  // Scroll shadow on sticky column
+  var wrapper = document.getElementById('matrixWrapper');
+  wrapper.addEventListener('scroll', function() {
+    if (wrapper.scrollLeft > 4) {
+      wrapper.classList.add('scrolled');
+    } else {
+      wrapper.classList.remove('scrolled');
+    }
+  }, { passive: true });
+})();
+</script>
+
+</body>
+</html>
