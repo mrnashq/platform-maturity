@@ -1,0 +1,19 @@
+type: Amplify
+spec:
+  app_name: "tiny-static-page"
+  platform: 'WEB'
+  build_spec: |
+    version: 1
+    frontend:
+      phases:
+        build:
+          commands:
+            - mkdir dist
+            - cp index.html dist/
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+  strategy:
+    static:
+      branch_name: "main"
