@@ -125,13 +125,12 @@
     font-weight: 600;
     color: var(--text);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
     user-select: none;
   }
 
   .matrix-col-header:hover { background: var(--surface); }
   .matrix-col-header:last-child { border-right: none; }
-  .matrix-col-header.active { background: var(--surface); }
 
   /* Row headers (levels) */
   .matrix-row-header {
@@ -143,12 +142,11 @@
     justify-content: center;
     gap: 0.2rem;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.2s, border-color 0.2s;
     user-select: none;
   }
 
   .matrix-row-header:hover { background: var(--surface); }
-  .matrix-row-header.active { background: var(--surface); }
 
   .row-level-num {
     font-family: 'JetBrains Mono', monospace;
@@ -176,6 +174,25 @@
   .row-3 .row-level-num, .row-3 .row-level-name { color: var(--level3); }
   .row-4 .row-level-num, .row-4 .row-level-name { color: var(--level4); }
   .row-5 .row-level-num, .row-5 .row-level-name { color: var(--level5); }
+
+  .matrix-row-header.row-1.active { background: #1e1214; border-right-color: var(--level1); }
+  .matrix-row-header.row-2.active { background: #1c1811; border-right-color: var(--level2); }
+  .matrix-row-header.row-3.active { background: #111e14; border-right-color: var(--level3); }
+  .matrix-row-header.row-4.active { background: #111a24; border-right-color: var(--level4); }
+  .matrix-row-header.row-5.active { background: #19142a; border-right-color: var(--level5); }
+
+  .matrix-row-header.active .row-level-summary { color: var(--text); }
+  .matrix-row-header.row-1.active .row-level-num, .matrix-row-header.row-1.active .row-level-name { color: #f47270; }
+  .matrix-row-header.row-2.active .row-level-num, .matrix-row-header.row-2.active .row-level-name { color: #e8b74a; }
+  .matrix-row-header.row-3.active .row-level-num, .matrix-row-header.row-3.active .row-level-name { color: #6fdb7e; }
+  .matrix-row-header.row-4.active .row-level-num, .matrix-row-header.row-4.active .row-level-name { color: #85bfff; }
+  .matrix-row-header.row-5.active .row-level-num, .matrix-row-header.row-5.active .row-level-name { color: #d4b4ff; }
+
+  .matrix-col-header.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-bottom-color: rgba(255, 255, 255, 0.25);
+  }
 
   /* Cells */
   .matrix-cell {
@@ -225,6 +242,59 @@
     box-shadow: 4px 0 8px rgba(0, 0, 0, 0.3);
   }
 
+  /* ── Future Considerations ── */
+
+  .future {
+    max-width: 1400px;
+    margin: 3rem auto 0;
+    border-top: 1px solid var(--border);
+    padding-top: 2rem;
+  }
+
+  .future h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  .future .lead {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 720px;
+    margin-bottom: 2rem;
+  }
+
+  .considerations {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .consideration {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.85rem 1rem;
+  }
+
+  .consideration strong {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+  }
+
+  .consideration p {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
   /* ── Mobile ── */
   @media (max-width: 700px) {
     body { padding: 1rem; }
@@ -255,6 +325,10 @@
     .matrix-col-header { font-size: 0.65rem; padding: 0.6rem 0.4rem; }
     .matrix-cell { font-size: 0.68rem; padding: 0.5rem 0.5rem; }
     .matrix-row-header { padding: 0.5rem; }
+
+    .considerations { grid-template-columns: 1fr; }
+
+    .future h2 { font-size: 0.95rem; }
   }
 
   @media (max-width: 400px) {
@@ -474,12 +548,44 @@
   </div>
 </div>
 
+<!-- ════════════════ FUTURE CONSIDERATIONS ════════════════ -->
+
+<div class="future">
+  <h2>Future Considerations</h2>
+  <p class="lead">This model describes platform maturity as it's understood today. The relationship between platforms and AI-driven development is evolving fast enough that what "good" looks like — particularly at the higher levels — will likely shift significantly. Some assumptions worth revisiting:</p>
+  <div class="considerations">
+    <div class="consideration">
+      <strong>Developers as primary users</strong>
+      <p>Every level is framed around developer experience. But if AI agents can generate, deploy, and manage services, the platform's most important consumer may not be a human. Its job shifts from abstracting complexity for developers to providing the context, constraints, and guardrails that AI agents need to produce correct, compliant, production-ready systems. The human developer role likely shifts towards architecture and intent — defining what should exist, how it should behave, and what constraints it must satisfy — rather than building it directly. The platform becomes the enforcement layer between human intent and AI execution.</p>
+    </div>
+    <div class="consideration">
+      <strong>Services as the unit of software</strong>
+      <p>The model assumes services are the thing you build, ship, run, and fix. But if generating a service is cheap, the unit may shift. You describe a business capability; the platform decides whether that's a new service, a modification, or a composition of what already exists. Decomposition itself becomes a platform decision rather than a human architectural one.</p>
+    </div>
+    <div class="consideration">
+      <strong>The lifecycle as distinct phases</strong>
+      <p>Ideation through to Running implies stages with meaningful gaps between them. If the distance from "I want X" to "X is running in production" collapses to minutes, the stages don't disappear — but they stop being phases humans move through. They become internal platform concerns, like compiler phases a developer never thinks about.</p>
+    </div>
+    <div class="consideration">
+      <strong>Fixing assumes human reasoning</strong>
+      <p>If the platform can understand, modify, and redeploy its own systems, the question shifts from "how do we help developers fix things faster" to "what shrinking class of problems still requires a human?" The interesting boundary is no longer speed of diagnosis but the limits of autonomous remediation.</p>
+    </div>
+    <div class="consideration">
+      <strong>Migration assumes evolution is hard</strong>
+      <p>If generating a replacement is cheap, "changing" might mean "generate a new version from the current spec plus new requirements, validate against existing behaviour, and cut over" — not carefully evolving the running thing in place. Lifecycle becomes less about managing change and more about managing continuity.</p>
+    </div>
+    <div class="consideration">
+      <strong>Platform as governance, not automation</strong>
+      <p>The framing today is "maximise time on product work." But if AI handles most infrastructure work and increasingly contributes to product work, the platform's purpose may shift from protecting developer time to being the system of record that makes AI-generated software trustworthy, governable, and auditable — the organisation's memory and judgement.</p>
+    </div>
+  </div>
+</div>
+
 <script>
 (function() {
-  // Track touch to distinguish tap from scroll
-  let touchStartX = 0;
-  let touchStartY = 0;
-  let touchMoved = false;
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchMoved = false;
 
   document.addEventListener('touchstart', function(e) {
     touchStartX = e.touches[0].clientX;
@@ -488,27 +594,40 @@
   }, { passive: true });
 
   document.addEventListener('touchmove', function(e) {
-    const dx = Math.abs(e.touches[0].clientX - touchStartX);
-    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    var dx = Math.abs(e.touches[0].clientX - touchStartX);
+    var dy = Math.abs(e.touches[0].clientY - touchStartY);
     if (dx > 8 || dy > 8) touchMoved = true;
   }, { passive: true });
 
   function handleTap(el, callback) {
-    el.addEventListener('click', function(e) {
-      callback(e);
-    });
+    el.addEventListener('click', function(e) { callback(e); });
     el.addEventListener('touchend', function(e) {
-      if (!touchMoved) {
-        e.preventDefault();
-        callback(e);
-      }
+      if (!touchMoved) { e.preventDefault(); callback(e); }
     });
+  }
+
+  function updateHeaderStates() {
+    // Update row headers
+    for (var r = 0; r < 5; r++) {
+      var rowCells = document.querySelectorAll('.matrix-cell[data-row="' + r + '"]');
+      var rowHeader = document.querySelector('.matrix-row-header[data-row="' + r + '"]');
+      var anyExpanded = Array.from(rowCells).some(function(c) { return c.classList.contains('expanded'); });
+      if (rowHeader) rowHeader.classList.toggle('active', anyExpanded);
+    }
+    // Update column headers
+    for (var c = 0; c < 7; c++) {
+      var colCells = document.querySelectorAll('.matrix-cell[data-col="' + c + '"]');
+      var colHeader = document.querySelector('.matrix-col-header[data-col="' + c + '"]');
+      var anyExpanded = Array.from(colCells).some(function(cl) { return cl.classList.contains('expanded'); });
+      if (colHeader) colHeader.classList.toggle('active', anyExpanded);
+    }
   }
 
   // Individual cells
   document.querySelectorAll('.matrix-cell').forEach(function(cell) {
     handleTap(cell, function() {
       cell.classList.toggle('expanded');
+      updateHeaderStates();
     });
   });
 
@@ -522,7 +641,7 @@
         if (allExpanded) c.classList.remove('expanded');
         else c.classList.add('expanded');
       });
-      header.classList.toggle('active', !allExpanded);
+      updateHeaderStates();
     });
   });
 
@@ -536,18 +655,14 @@
         if (allExpanded) c.classList.remove('expanded');
         else c.classList.add('expanded');
       });
-      header.classList.toggle('active', !allExpanded);
+      updateHeaderStates();
     });
   });
 
-  // Scroll shadow on sticky column
+  // Scroll shadow
   var wrapper = document.getElementById('matrixWrapper');
   wrapper.addEventListener('scroll', function() {
-    if (wrapper.scrollLeft > 4) {
-      wrapper.classList.add('scrolled');
-    } else {
-      wrapper.classList.remove('scrolled');
-    }
+    wrapper.classList.toggle('scrolled', wrapper.scrollLeft > 4);
   }, { passive: true });
 })();
 </script>
