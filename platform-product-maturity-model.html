@@ -269,7 +269,7 @@
 
   .considerations {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.75rem;
   }
 
@@ -329,6 +329,10 @@
     .considerations { grid-template-columns: 1fr; }
 
     .future h2 { font-size: 0.95rem; }
+  }
+
+  @media (min-width: 701px) and (max-width: 1000px) {
+    .considerations { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 400px) {
@@ -556,7 +560,7 @@
   <div class="considerations">
     <div class="consideration">
       <strong>Developers as primary users</strong>
-      <p>Every level is framed around developer experience. But if AI agents can generate, deploy, and manage services, the platform's most important consumer may not be a human. Its job shifts from abstracting complexity for developers to providing the context, constraints, and guardrails that AI agents need to produce correct, compliant, production-ready systems. The human developer role likely shifts towards architecture and intent — defining what should exist, how it should behave, and what constraints it must satisfy — rather than building it directly. The platform becomes the enforcement layer between human intent and AI execution.</p>
+      <p>Every level is framed around developer experience. But if AI agents can generate, deploy, and manage services, the platform's most important consumer may not be a human. The human role likely shifts towards architecture and intent — defining what should exist, how it should behave, and what constraints apply — rather than building it directly. The platform becomes the enforcement layer between human intent and AI execution.</p>
     </div>
     <div class="consideration">
       <strong>Services as the unit of software</strong>
@@ -666,6 +670,3 @@
   }, { passive: true });
 })();
 </script>
-
-</body>
-</html>
